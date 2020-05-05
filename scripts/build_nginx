@@ -13,16 +13,13 @@ NGINX_VERSION=${NGINX_VERSION-master}
 PCRE_VERSION=${PCRE_VERSION-8.44}
 HEADERS_MORE_VERSION=${HEADERS_MORE_VERSION-0.33}
 ZLIB_VERSION=${ZLIB_VERSION-1.2.11}
-BROTLI_VERSION=${BROTLI_VERSION-master}
 UUID4_VERSION=${UUID4_VERSION-master}
-NGX_BROTLI_VERSION=${NGX_BROTLI_VERSION-master}
 
 nginx_tarball_url=https://github.com/nginx/nginx/archive/${NGINX_VERSION}.tar.gz
 pcre_tarball_url=https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz
 headers_more_nginx_module_url=https://github.com/openresty/headers-more-nginx-module/archive/v${HEADERS_MORE_VERSION}.tar.gz
 uuid4_url=https://github.com/cybozu/nginx-uuid4-module/archive/${UUID4_VERSION}.tar.gz
-ngx_brotli_url=https://github.com/google/ngx_brotli/archive/${NGX_BROTLI_VERSION}.tar.gz
-brotli_url=https://github.com/google/brotli/archive/${BROTLI_VERSION}.tar.gz
+ngx_brotli_url=https://github.com/google/ngx_brotli.git
 zlib_url=http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz
 
 temp_dir=$(mktemp -d /tmp/nginx.XXXXXXXXXX)
@@ -51,17 +48,14 @@ modules=(
 )
 
 if [[ "$NGINX_VERSION" != "release-1.9.5" ]]; then
-    echo "Downloading $brotli_url"
+    echo "Downloading $ngx_brotli_url"
+
     (
-        cd nginx-${NGINX_VERSION} && curl -L $brotli_url | tar xvz
-        cd brotli-${BROTLI_VERSION} && ./configure-cmake && make && make install
+        cd nginx-${NGINX_VERSION} && git clone $ngx_brotli_url
+        cd ngx_brotli && git submodule update --init
     )
 
-    echo "Downloading $ngx_brotli_url"
-    (cd nginx-${NGINX_VERSION} && curl -L $ngx_brotli_url | tar xvz )
-
-
-    modules+=(--add-module=${temp_dir}/nginx-${NGINX_VERSION}/ngx_brotli-${NGX_BROTLI_VERSION})
+    modules+=(--add-module=${temp_dir}/nginx-${NGINX_VERSION}/ngx_brotli)
 fi
 
 (
