@@ -61,17 +61,20 @@ if [[ "$NGINX_VERSION" != "release-1.9.5" ]]; then
     (cd nginx-${NGINX_VERSION} && curl -L $ngx_brotli_url | tar xvz )
 
 
-    modules+=(--with-http_v2_module --add-module=${temp_dir}/nginx-${NGINX_VERSION}/ngx_brotli-${NGX_BROTLI_VERSION})
+    modules+=(--add-module=${temp_dir}/nginx-${NGINX_VERSION}/ngx_brotli-${NGX_BROTLI_VERSION})
 fi
 
 (
   cd nginx-${NGINX_VERSION}
+
+  ldconfig
 
   ./auto/configure \
     --with-pcre=pcre-${PCRE_VERSION} \
     --with-zlib=zlib-${ZLIB_VERSION} \
     --with-http_gzip_static_module \
     --with-http_realip_module \
+    --with-http_v2_module \
     --with-http_ssl_module \
     --prefix=/tmp/nginx \
     ${modules[@]}
@@ -87,6 +90,7 @@ fi
     --with-zlib=zlib-${ZLIB_VERSION} \
     --with-http_gzip_static_module \
     --with-http_realip_module \
+    --with-http_v2_module \
     --with-http_ssl_module \
     --prefix=/tmp/nginx-debug \
     ${modules[@]}
